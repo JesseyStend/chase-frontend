@@ -2,7 +2,10 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+First, create an .env file like in the `.env.example` file. Use
+your own ipregistry api key for it.
+
+Then, run the development server:
 
 ```bash
 npm run dev

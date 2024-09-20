@@ -1,4 +1,4 @@
-import { Download, ShieldCheck } from "lucide-react";
+import { CircleAlert, Download, ShieldCheck } from "lucide-react";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -22,22 +22,25 @@ import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import logo from "./images/logo.png";
 import Image from "next/image";
 import DutchFlag from "~/components/icons/DutchFlag";
+import getPaymentMethods from "./actions/getPaymentMethods";
 
-export default function Home() {
+export default async function Home() {
+  const paymentMethods = await getPaymentMethods();
+
   return (
-    <main className='grid grid-cols-2 h-screen w-screen'>
-      <div className='flex p-16 flex-col gap-4'>
-        <nav className='pb-16 flex'>
+    <main className='grid grid-cols-1 h-screen w-screen md:grid-cols-2'>
+      <div className='flex p-8 flex-col gap-4 md:p-16'>
+        <nav className='pb-16 md:flex space-y-2'>
           <div className='flex-1'>
             <Image src={logo} alt='logo' />
           </div>
           <Select defaultValue='nl'>
-            <SelectTrigger className='w-[180px]'>
+            <SelectTrigger className='md:w-[180px]'>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value='nl'>
-                <DutchFlag className='size-4 float-start mx-2 mt-0.5' />{" "}
+                <DutchFlag className='size-4 float-start mx-2 mt-0.5' />
                 Nederlands
               </SelectItem>
             </SelectContent>
@@ -53,14 +56,48 @@ export default function Home() {
         </div>
 
         <RadioGroup defaultValue='comfortable'>
-          <div className='flex items-center space-x-4 cursor-pointer'>
-            <div className='flex-none bg-primary w-20 h-14 rounded-lg' />
-            <Label htmlFor='r1' className='flex-1 font-bold text-lg'>
-              iDeal
-            </Label>
-            <Badge variant='secondary'>Populair</Badge>
-            <RadioGroupItem value='iDeal' id='r1' />
-          </div>
+          {paymentMethods.map((paymentMethod) => (
+            <div
+              key={`paymentmethod-${paymentMethod.id}`}
+              className='group'>
+              <div className='flex items-center space-x-4 cursor-pointer'>
+                <Image
+                  src={paymentMethod.image}
+                  alt={`${paymentMethod.description} payment method`}
+                  width={20}
+                  height={14}
+                  className='flex-none w-20 h-14 rounded-lg'
+                />
+                <Label htmlFor='r1' className='flex-1 font-bold text-lg'>
+                  {paymentMethod.description}
+                </Label>
+                {(paymentMethod.description === "iDEAL" ||
+                  paymentMethod.description === "Kaart") && (
+                  <Badge variant='secondary'>Populair</Badge>
+                )}
+                <RadioGroupItem
+                  value={paymentMethod.id}
+                  id={paymentMethod.id}
+                />
+              </div>
+              {paymentMethod.issuers && (
+                <div className='hidden group-has-[.fill-primary]:block bg-secondary p-4 mt-2'>
+                  <Select>
+                    <SelectTrigger className='w-full'>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {paymentMethod.issuers.map((issuer) => (
+                        <SelectItem key={issuer.id} value={issuer.id}>
+                          {issuer.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          ))}
         </RadioGroup>
 
         <Alert variant='secondary' className='gap-4'>
@@ -71,7 +108,7 @@ export default function Home() {
           </AlertDescription>
         </Alert>
       </div>
-      <div className='flex flex-col bg-secondary p-16 gap-2'>
+      <div className='flex flex-col bg-secondary p-8 gap-2 md:p-8'>
         <div className='ring-2 ring-primary text-primary p-2 text-center w-full mb-16'>
           Vermijd extra kosten betaal uw openstaande factuur direct!
         </div>
@@ -107,11 +144,18 @@ export default function Home() {
             </div>
             <hr />
           </CardContent>
-          <CardFooter className='flex flex-col'>
-            <CardTitle className='w-full pb-6'>
+          <CardFooter className='flex flex-col gap-4'>
+            <CardTitle className='w-full'>
               Totaal <span className='float-end'>€30,00</span>
             </CardTitle>
             <Button className='w-full flex-none'>Nu betalen</Button>
+            <Alert variant='secondary'>
+              <CircleAlert className='stroke-primary size-8' />
+              <AlertDescription>
+                Uw wordt doorgeleid naar een de betaalpagina van de
+                geselecteerde betalings partner.
+              </AlertDescription>
+            </Alert>
           </CardFooter>
         </Card>
       </div>
