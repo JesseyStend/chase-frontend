@@ -1,5 +1,6 @@
 import { cache } from 'react'
 import { notFound } from 'next/navigation'
+import { headers } from 'next/headers'
 
 export interface UserInformation { 
     location: {
@@ -12,13 +13,18 @@ export interface UserInformation {
 }
 
 const getUserInfo = cache(async () => {
+    const realIP = headers().get('x-real-ip');
+
+    console.log(realIP);
+
     try {
         const apiKey = process.env.IPREGISTRY_API_KEY;
 
         const result = await fetch('https://api.ipregistry.co?key=' + apiKey);
 
         return result.json() as unknown as UserInformation;
-    } catch {
+    } catch (err) {
+        console.error(err);
         notFound();
     }
 });

@@ -27,9 +27,9 @@ const getPaymentMethods = cache(async () => {
             }
         });
 
-
         return result;
-    } catch {
+    } catch (err) {
+        console.error(err);
         notFound();
     }
 });
