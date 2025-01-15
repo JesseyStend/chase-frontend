@@ -15,12 +15,10 @@ export interface UserInformation {
 const getUserInfo = cache(async () => {
     const realIP = headers().get('x-real-ip');
 
-    console.log(realIP);
-
     try {
         const apiKey = process.env.IPREGISTRY_API_KEY;
 
-        const result = await fetch('https://api.ipregistry.co?key=' + apiKey);
+        const result = await fetch(`https://api.ipregistry.co/${realIP}?key=${apiKey}`);
 
         return result.json() as unknown as UserInformation;
     } catch (err) {
